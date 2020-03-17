@@ -1,0 +1,94 @@
+class Player {
+  constructor(context, keyboard) {
+    this.x = 100;
+    this.y = 100;
+
+    this.ctx = context;
+    this.keyboard = keyboard;
+  }
+
+  updatePosition() {
+    if (this.keyboard.keysPressed.left) {
+      this.x -= 1;
+    }
+    if (this.keyboard.keysPressed.right) {
+      this.x += 1;
+    }
+    if (this.keyboard.keysPressed.up) {
+      this.y -= 1;
+    }
+    if (this.keyboard.keysPressed.down) {
+      this.y += 1;
+    }
+  }
+
+  draw() {
+    console.log("drawing");
+    this.updatePosition();
+
+    this.ctx.fillStyle = "green";
+    this.ctx.fillRect(this.x, this.y, 40, 40);
+  }
+}
+
+class Keyboard {
+  constructor() {
+    this.keysPressed = {
+      left: false,
+      right: false,
+      up: false,
+      down: false
+    };
+
+    document.addEventListener(
+      "keyup",
+      e => {
+        this.handleKeyPress(e, false);
+      },
+      false
+    );
+
+    document.addEventListener(
+      "keydown",
+      e => {
+        this.handleKeyPress(e, true);
+      },
+      false
+    );
+  }
+
+  handleKeyPress(e, value) {
+    switch (e.keyCode) {
+      case 38:
+        this.keysPressed.up = value;
+        break;
+      case 40:
+        this.keysPressed.down = value;
+        break;
+      case 37:
+        this.keysPressed.left = value;
+        break;
+      case 39:
+        this.keysPressed.right = value;
+        break;
+    }
+  }
+}
+
+class Game {
+  constructor() {
+    this.canvas = document.createElement("canvas");
+    this.canvas.width = 480;
+    this.canvas.height = 640;
+    this.context = this.canvas.getContext("2d");
+
+    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+
+    this.keyboard = new Keyboard();
+    this.player = new Player(this.context, this.keyboard);
+
+    requestAnimationFrame(this.player.draw);
+  }
+}
+
+var game = new Game();
