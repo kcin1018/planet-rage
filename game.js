@@ -51,22 +51,22 @@ class Game {
     var start = {};
     switch (side) {
       case 0:
-        start = { x: 20, y: 300, xVelocity: 10, yVelocity: 0 };
+        start = { x: 10, y: 300, xVelocity: 10, yVelocity: 0 };
         break;
       case 1:
-        start = { x: 20, y: 40, xVelocity: 0, yVelocity: 10 };
+        start = { x: 10, y: 40, xVelocity: 0, yVelocity: 10 };
         break;
       case 2:
-        start = { x: 440, y: 40, xVelocity: 0, yVelocity: 10 };
+        start = { x: 450, y: 40, xVelocity: 0, yVelocity: 10 };
         break;
       case 3:
-        start = { x: 440, y: 300, xVelocity: -10, yVelocity: 0 };
+        start = { x: 450, y: 300, xVelocity: -10, yVelocity: 0 };
         break;
     }
 
     var numEnemies = parseInt(Math.random() * 3) + 2;
-    for (var i = 0; i <= numEnemies; i++) {
-      this.enemies.push({ x: start.x, y: start.y, level: 1 });
+    for (var i = 0; i < numEnemies; i++) {
+      this.enemies.push({ x: start.x, y: start.y, level: 0 });
       switch (side) {
         case 0:
           start.x -= 50;
@@ -75,6 +75,9 @@ class Game {
           start.y -= 50;
           break;
         case 2:
+          start.y += 50;
+          break;
+        case 3:
           start.x += 50;
           break;
       }
@@ -104,36 +107,41 @@ class Game {
     }
 
     // update enemy positions
-    this.enemies = this.enemies.map(enemy => {
-      // lower right
-      if (enemy.x >= 440 && enemy.y >= 300 * enemy.level) {
-        enemy.xVelocity = 0;
-        enemy.yVelocity = -10;
-      }
+    this.enemies = this.enemies
+      .map(enemy => {
+        var offset = enemy.level * 40;
+        // lower right
+        if (enemy.x >= 440 && enemy.y >= 300 + offset) {
+          enemy.xVelocity = 0;
+          enemy.yVelocity = -10;
+        }
 
-      // upper right
-      if (enemy.x >= 440 && enemy.y <= 40 * enemy.level) {
-        enemy.xVelocity = -10;
-        enemy.yVelocity = 0;
-        enemy.level += 0.1;
-      }
+        // upper right
+        if (enemy.x >= 440 && enemy.y <= 40 + offset) {
+          enemy.xVelocity = -10;
+          enemy.yVelocity = 0;
+          enemy.level += 1;
+        }
 
-      // upper left
-      if (enemy.x <= 20 && enemy.y <= 40 * enemy.level) {
-        enemy.xVelocity = 0;
-        enemy.yVelocity = 10;
-      }
-      // lower left
-      if (enemy.x <= 20 && enemy.y >= 300 * enemy.level) {
-        enemy.xVelocity = 10;
-        enemy.yVelocity = 0;
-      }
+        // upper left
+        if (enemy.x <= 20 && enemy.y <= 40 + offset) {
+          enemy.xVelocity = 0;
+          enemy.yVelocity = 10;
+        }
+        // lower left
+        if (enemy.x <= 20 && enemy.y >= 300 + offset) {
+          enemy.xVelocity = 10;
+          enemy.yVelocity = 0;
+        }
 
-      enemy.x += enemy.xVelocity;
-      enemy.y += enemy.yVelocity;
+        enemy.x += enemy.xVelocity;
+        enemy.y += enemy.yVelocity;
 
-      return { ...enemy };
-    });
+        return { ...enemy };
+      })
+      .filter(enemy => {
+        return enemy.y < 620;
+      });
 
     // update shots positions
     this.player.shots = this.player.shots
