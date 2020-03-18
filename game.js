@@ -1,6 +1,6 @@
 class Game {
   constructor() {
-    this.canvas = document.createElement('canvas');
+    this.canvas = document.createElement("canvas");
     this.canvas.width = 480;
     this.canvas.height = 640;
     this.ctx = this.canvas.getContext("2d");
@@ -10,7 +10,7 @@ class Game {
       y: 640,
       shots: [],
       lastShot: null
-    }
+    };
 
     this.keysPressed = {
       left: false,
@@ -18,15 +18,23 @@ class Game {
       up: false,
       down: false,
       z: false,
-      x: false,
-    }
+      x: false
+    };
 
     this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
     this.handleKeyboard = this.handleKeyboard.bind(this);
 
-    document.addEventListener('keydown', (e) => this.handleKeyboard(e, true), false);
-    document.addEventListener('keyup', (e) => this.handleKeyboard(e, false), false);
+    document.addEventListener(
+      "keydown",
+      e => this.handleKeyboard(e, true),
+      false
+    );
+    document.addEventListener(
+      "keyup",
+      e => this.handleKeyboard(e, false),
+      false
+    );
 
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 
@@ -50,12 +58,13 @@ class Game {
     }
 
     // update shots positions
-    this.player.shots = this.player.shots.map(shot => {
-      return { ...shot, y: shot.y - 5 };
-    }).filter(shot => {
-      return shot.y >= 0;
-    });
-
+    this.player.shots = this.player.shots
+      .map(shot => {
+        return { ...shot, y: shot.y - 10 };
+      })
+      .filter(shot => {
+        return shot.y >= 0;
+      });
   }
 
   draw() {
@@ -63,11 +72,11 @@ class Game {
     this.update();
 
     // draw all the objects
-    this.ctx.fillStyle = 'black';
+    this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, 480, 640);
 
     // draw the player
-    this.ctx.fillStyle = 'green';
+    this.ctx.fillStyle = "green";
     this.ctx.beginPath();
     this.ctx.moveTo(this.player.x, this.player.y);
     this.ctx.lineTo(this.player.x + 20, this.player.y - 25);
@@ -77,10 +86,9 @@ class Game {
     this.ctx.fill();
 
     // draw the shots
-    this.ctx.fillStyle = 'orange';
+    this.ctx.fillStyle = "orange";
     this.player.shots.map(shot => {
-      console.log(shot.x, shot.y, shot.x + 1, shot.y - 10);
-      this.ctx.fillRect(shot.x, shot.y, shot.x + 1, shot.y - 10);
+      this.ctx.fillRect(shot.x, shot.y, 3, -15);
     });
     requestAnimationFrame(this.draw);
   }
@@ -96,11 +104,11 @@ class Game {
         this.keysPressed.x = value;
         break;
       case 32:
-        var now = (new Date()).getTime();
+        var now = new Date().getTime();
         if (this.player.lastShot === null || now - this.player.lastShot > 100) {
           this.player.lastShot = now;
-          this.player.shots.push({ x: this.player.x, y: this.player.y })
-          this.player.shots.push({ x: this.player.x + 40, y: this.player.y })
+          this.player.shots.push({ x: this.player.x, y: this.player.y });
+          this.player.shots.push({ x: this.player.x + 36, y: this.player.y });
         }
         break;
       case 37:
