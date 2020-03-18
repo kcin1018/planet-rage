@@ -3,6 +3,7 @@ class Game {
     this.canvas = document.createElement("canvas");
     this.canvas.width = 480;
     this.canvas.height = 640;
+    this.startTime = new Date().getTime();
     this.ctx = this.canvas.getContext("2d");
 
     this.player = {
@@ -11,6 +12,8 @@ class Game {
       shots: [],
       lastShot: null
     };
+
+    this.enemies = [];
 
     this.keysPressed = {
       left: false,
@@ -24,6 +27,7 @@ class Game {
     this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
     this.handleKeyboard = this.handleKeyboard.bind(this);
+    this.deployEnemies = this.deployEnemies.bind(this);
 
     document.addEventListener(
       "keydown",
@@ -39,6 +43,42 @@ class Game {
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 
     requestAnimationFrame(this.draw);
+  }
+
+  deployEnemies() {
+    // which side?
+    var side = parseInt(Math.random() * 3);
+    var start = {};
+    switch (side) {
+      case 0:
+        start = { x: 20, y: 300, xVelocity: 10, yVelocity: 0 };
+        break;
+      case 1:
+        start = { x: 20, y: 40, xVelocity: 0, yVelocity: 10 };
+        break;
+      case 2:
+        start = { x: 440, y: 40, xVelocity: 0, yVelocity: 10 };
+        break;
+      case 3:
+        start = { x: 440, y: 300, xVelocity: -10, yVelocity: 0 };
+        break;
+    }
+
+    var numEnemies = parseInt(Math.random() * 3) + 2;
+    for (var i = 0; i <= numEnemies; i++) {
+      this.enemies.push({ x: start.x, y: start.y, level: 1 });
+      switch (side) {
+        case 0:
+          start.x -= 50;
+          break;
+        case 1:
+          start.y -= 50;
+          break;
+        case 2:
+          start.x += 50;
+          break;
+      }
+    }
   }
 
   update() {
@@ -57,6 +97,44 @@ class Game {
       this.player.y += step;
     }
 
+    var now = new Date().getTime();
+    if (now - this.startTime >= 5000) {
+      this.startTime = now;
+      this.deployEnemies();
+    }
+
+    // update enemy positions
+    this.enemies = this.enemies.map(enemy => {
+      // lower right
+      if (enemy.x >= 440 && enemy.y >= 300 * enemy.level) {
+        enemy.xVelocity = 0;
+        enemy.yVelocity = -10;
+      }
+
+      // upper right
+      if (enemy.x >= 440 && enemy.y <= 40 * enemy.level) {
+        enemy.xVelocity = -10;
+        enemy.yVelocity = 0;
+        enemy.level += 0.1;
+      }
+
+      // upper left
+      if (enemy.x <= 20 && enemy.y <= 40 * enemy.level) {
+        enemy.xVelocity = 0;
+        enemy.yVelocity = 10;
+      }
+      // lower left
+      if (enemy.x <= 20 && enemy.y >= 300 * enemy.level) {
+        enemy.xVelocity = 10;
+        enemy.yVelocity = 0;
+      }
+
+      enemy.x += enemy.xVelocity;
+      enemy.y += enemy.yVelocity;
+
+      return { ...enemy };
+    });
+
     // update shots positions
     this.player.shots = this.player.shots
       .map(shot => {
@@ -65,6 +143,10 @@ class Game {
       .filter(shot => {
         return shot.y >= 0;
       });
+
+    // check enemy and shot collisions
+
+    // check enemy and player collisions
   }
 
   draw() {
@@ -90,11 +172,18 @@ class Game {
     this.player.shots.map(shot => {
       this.ctx.fillRect(shot.x, shot.y, 3, -15);
     });
+
+    // draw enemies
+    this.ctx.fillStyle = "blue";
+    this.enemies.map(enemy => {
+      this.ctx.fillRect(enemy.x, enemy.y, 20, 20);
+    });
+
     requestAnimationFrame(this.draw);
   }
 
   handleKeyboard(e, value) {
-    console.log(e.keyCode, value);
+    // console.log(e.keyCode, value);
     // handle update of what is pressed
     switch (e.keyCode) {
       case 90:
