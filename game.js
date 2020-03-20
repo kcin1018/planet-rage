@@ -7,6 +7,7 @@ class Game {
     this.ctx = this.canvas.getContext("2d");
 
     this.score = 0;
+    this.gameOver = false;
 
     this.player = {
       x: 220,
@@ -87,6 +88,10 @@ class Game {
   }
 
   update() {
+    if (this.gameOver) {
+      return;
+    }
+
     var step = 4;
     // update player position
     if (this.keysPressed.left && this.player.x > 0) {
@@ -155,13 +160,19 @@ class Game {
       });
 
     // check enemy and shot collisions
-    this.player.shots.map(shot => {
-      this.enemies.map(enemy => {
+    this.enemies.map(enemy => {
+      // check enemy and player collisions
+      if (
+        Math.abs(this.player.x + 10 - enemy.x) < 20 &&
+        Math.abs(this.player.y - 10 - enemy.y) < 10
+      ) {
+        this.gameOver = true;
+      }
+
+      this.player.shots.map(shot => {
         if (
-          enemy.x <= shot.x &&
-          enemy.x + 20 >= shot.x &&
-          enemy.y <= shot.y &&
-          enemy.y + 20 >= shot.y
+          Math.abs(shot.x - enemy.x) < 1 &&
+          Math.abs(shot.y + 7 - enemy.y) < 7
         ) {
           // remove the shot
           this.player.shots.splice(this.player.shots.indexOf(shot), 1);
@@ -172,8 +183,6 @@ class Game {
         }
       });
     });
-
-    // check enemy and player collisions
   }
 
   draw() {
@@ -183,6 +192,15 @@ class Game {
     // draw all the objects
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, 480, 640);
+
+    if (this.gameOver) {
+      this.ctx.fillStyle = "yellow";
+      this.ctx.font = "30px Arial";
+      this.ctx.fillText(`GAME`, 190, 200);
+      this.ctx.fillText(`OVER`, 190, 250);
+      this.ctx.fillText(`Score: ${this.score}`, 140, 350);
+      return;
+    }
 
     // score
     this.ctx.fillStyle = "white";
