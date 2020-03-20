@@ -6,6 +6,8 @@ class Game {
     this.startTime = new Date().getTime();
     this.ctx = this.canvas.getContext("2d");
 
+    this.score = 0;
+
     this.player = {
       x: 220,
       y: 640,
@@ -153,6 +155,23 @@ class Game {
       });
 
     // check enemy and shot collisions
+    this.player.shots.map(shot => {
+      this.enemies.map(enemy => {
+        if (
+          enemy.x <= shot.x &&
+          enemy.x + 20 >= shot.x &&
+          enemy.y <= shot.y &&
+          enemy.y + 20 >= shot.y
+        ) {
+          // remove the shot
+          this.player.shots.splice(this.player.shots.indexOf(shot), 1);
+          // remove the enemy
+          this.enemies.splice(this.enemies.indexOf(enemy), 1);
+          // add points
+          this.score += 10;
+        }
+      });
+    });
 
     // check enemy and player collisions
   }
@@ -164,6 +183,11 @@ class Game {
     // draw all the objects
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, 480, 640);
+
+    // score
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "30px Arial";
+    this.ctx.fillText(`Score: ${this.score}`, 10, 50);
 
     // draw the player
     this.ctx.fillStyle = "green";
